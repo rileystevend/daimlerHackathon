@@ -2,7 +2,7 @@
 
 run `npm install -g live-server`
 
-run `live-server` in terminal from the model directory.git a
+run `live-server` in terminal from the model directory
 
 ## Target Image
 
