@@ -12,9 +12,54 @@
       </a-assets>
       <a-marker preset="kanji">
         <a-entity gltf-model="#scene" position="0 0 0" scale="0.1 0.1 0.1">
+          <a-animation
+            attribute="rotation"
+            to="0 360 0"
+            dur="15000"
+            easing="linear"
+            repeat="indefinite"
+          ></a-animation>
         </a-entity>
+        <a-entity
+          text="width: 4; value: Misfire Count: ;"
+          position="2 3 0"
+        ></a-entity>
+        <a-entity text="width: 4; value: 2.487;" position="3.5 3 0"></a-entity>
+        <a-entity
+          text="width: 4; value: Cylinder Compression: ;"
+          position="2 2.75 0"
+        ></a-entity>
+        <a-entity
+          text="width: 4; value:        80 psi;"
+          position="4 2.75 0"
+        ></a-entity>
       </a-marker>
       <a-entity camera></a-entity>
     </a-scene>
   </body>
 </html>
+
+<!--
+  All procedures in XML
+  Static procedures are displayed
+  ADF File that is set up
+
+  TechLane is going to be the repo for the
+  Adobe Experience manager database
+  serve up the files to diagnostic link
+
+  Moving more twoards the cloud
+
+  able to update the procedures and flexibility will come
+
+  Express Assessment is done with ipad
+  Diagnostic is done with laptop
+
+  pull up picture of the truck
+
+  there is a QR code that is associated
+    -more for the ipad
+
+  client does not play well with ios
+    -too much of a fat client for an ipad
+-->
