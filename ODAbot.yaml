@@ -12,6 +12,7 @@ context:
     noteReported: "string"
     finalReport: "string"
     repairs: "string"
+    report: "string"
     
 #The syntax for defining the variables is variablename: "variableType".
 # The "variableType" can be defined as a primitive type ("string", "boolean", "int", "float", "double"), "list", "map", "resourcebundle", or an entity name. A variable can also hold the results returned by the Intent Engine. For these variables, the "variableType" must be "nlpresult" (for example, iResult: "nlpresult").
@@ -45,18 +46,9 @@ states:
         unresolvedIntent: "startUnresolved"
         
   startMaintenanceProcedures:
-    component: "System.Output"
-    properties:
-      text: "Sounds good, let's get started."
-      keepTurn: false
-    transitions:
-      next: "repairsList"
-      # insert Component: Control/ConditionEquals. If it equals the step number, jump there
-      
-  repairsList:
     component: "System.Text"
     properties:
-      prompt: "What type of work are you trying to accomplish?"
+      prompt: "Sounds good, let's get started. What type of work are you trying to accomplish?"
       variable: "repairs"
       nlpResultVariable: "iResult"
       maxPrompts: 3
@@ -64,35 +56,65 @@ states:
       actions:
         cancel: "maxError"
         next: "stepOne"
-        
+      # insert Component: Control/ConditionEquals. If it equals the step number, jump there
+
   stepOne:
     component: "System.Output"
     properties:
-      text: "Shut off the engine, apply the parking brake, chock the wheels, and perform any other applicable safety steps."
+      text: "${repairs.value} Removing the Front Engine Bracket. Step One. Shut off the engine, chock the wheels, and perform all safety steps."
       keepTurn: false
-      translate:
+  #    next: "stepTwo"
       
+  stepTwo:
+    component: "System.Output"
+    properties:
+      text: "Step Two. Open the hood and disconnect the batteries."
+      keepTurn: false
+     # next: "stepTwo" 
+ 
+ 
+  addToReport:
+    component: "System.Text"
+    properties:
+      prompt: "What's the issue?"
+      variable: "report"
+      nlpResultVariable: "iResult"
+      maxPrompts: 1
+    transitions:
+      actions:
+        cancel: "maxError"
+        next: "confirmReport"
+    
+  confirmReport:
+    component: "System.Output"
+    properties:
+      text: "Added to report."
+   
+     
+     
+  completeWork:
+    component: "System.Output"
+    properties:
+      text: "${report.value}"
+    transitions: 
+      actions:
+        cancel: "maxError"
+        next: "signOff" 
+  
+  signOff:
+    component: "System.Output"
+    properties:
+      text: "Nice work, tech"
+    transitions: 
+      return : "done"     
+        
   startUnresolved:
     component: "System.Output"
     properties:
       text: "I am sorry I could not understand, lets connect you with someone to help."
       keepTurn: false
     transitions:
-      return: "done"      
-     
-  addToReport:
-    component: "System.Output"
-    properties:
-      text: "I am sorry to hear this. Let me take your cancellation request."
-    transitions: 
-      return : "done" 
-      
-  completeWork:
-    component: "System.Output"
-    properties:
-      text: "I am sorry to hear this. Let me take your complaint details."
-    transitions: 
-      return : "done"   
+      return: "done" 
       
   maxError:
     component: "System.Output"
