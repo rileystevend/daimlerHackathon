@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script>
+  <script src="https://rawgit.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+  <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.5.0/aframe/build/aframe-ar.js"></script>
+  <body style="margin : 0px; overflow: hidden;">
+    <a-scene stats embedded arjs="trackingMethod: best; debugUIEnabled: false">
+      <a-assets>
+        <a-asset-item id="scene" src="./scene.gltf"></a-asset-item>
+      </a-assets>
+      <a-marker preset="kanji">
+        <a-entity gltf-model="#scene" position="0 0 0" scale="0.15 0.15 0.15">
+        </a-entity>
+        <!--
+          <a-entity
+            text="width: 12; value: Remaining Useful Life;"
+            position="3 3 0"
+          ></a-entity>
+          <a-entity
+            text="width: 12; value:           2.487;"
+            position="3 2 1"
+          ></a-entity>
+        -->
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
