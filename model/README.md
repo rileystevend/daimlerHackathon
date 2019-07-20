@@ -1,6 +1,8 @@
 ## Run Project
 
-run "live-server" in the model directory.
+run `npm install -g live-server`
+
+run `live-server` in terminal from the model directory
 
 ## Target Image
 
