@@ -8,9 +8,11 @@ name: DaimlerBot
 context:
   variables:
     iResult: "nlpresult"
-    stepNumber: "StepNumber"
-    noteReported: "NoteReported"
+    stepNumber: "int"
+    noteReported: "string"
     finalReport: "string"
+    repairs: "string"
+    
 #The syntax for defining the variables is variablename: "variableType".
 # The "variableType" can be defined as a primitive type ("string", "boolean", "int", "float", "double"), "list", "map", "resourcebundle", or an entity name. A variable can also hold the results returned by the Intent Engine. For these variables, the "variableType" must be "nlpresult" (for example, iResult: "nlpresult").
 
@@ -37,19 +39,39 @@ states:
       daIntercept: "always" 
     transitions:
       actions:
-        StartWork: "startWork"
+        StartMaintenanceProcedures: "startMaintenanceProcedures"
         AddToReport: "addToReport"
         CompleteWork: "completeWork"
         unresolvedIntent: "startUnresolved"
         
-  startWork:
+  startMaintenanceProcedures:
     component: "System.Output"
     properties:
-      text: "Hello, Starting your order process"
+      text: "Sounds good, let's get started."
       keepTurn: false
     transitions:
-      return: "done"
-  
+      next: "repairsList"
+      # insert Component: Control/ConditionEquals. If it equals the step number, jump there
+      
+  repairsList:
+    component: "System.Text"
+    properties:
+      prompt: "What type of work are you trying to accomplish?"
+      variable: "repairs"
+      nlpResultVariable: "iResult"
+      maxPrompts: 3
+    transitions:
+      actions:
+        cancel: "maxError"
+        next: "stepOne"
+        
+  stepOne:
+    component: "System.Output"
+    properties:
+      text: "Shut off the engine, apply the parking brake, chock the wheels, and perform any other applicable safety steps."
+      keepTurn: false
+      translate:
+      
   startUnresolved:
     component: "System.Output"
     properties:
@@ -57,8 +79,7 @@ states:
       keepTurn: false
     transitions:
       return: "done"      
-
-      
+     
   addToReport:
     component: "System.Output"
     properties:
@@ -78,4 +99,8 @@ states:
     properties:
       text: "OK lets connect you with someone to help"
     transitions:
-      return: "done"   
+      return: "done"    
+      
+
+    # insert Component: List - Set Variable here to scroll through Repair types.
+  
