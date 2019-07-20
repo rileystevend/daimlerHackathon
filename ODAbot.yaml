@@ -7,6 +7,10 @@ name: DaimlerBot
 #context: Define the variables which will used throughout the dialog flow here.
 context:
   variables:
+    iResult: "nlpresult"
+    stepNumber: "StepNumber"
+    noteReported: "NoteReported"
+    finalReport: "string"
 #The syntax for defining the variables is variablename: "variableType".
 # The "variableType" can be defined as a primitive type ("string", "boolean", "int", "float", "double"), "list", "map", "resourcebundle", or an entity name. A variable can also hold the results returned by the Intent Engine. For these variables, the "variableType" must be "nlpresult" (for example, iResult: "nlpresult").
 
@@ -24,3 +28,54 @@ context:
 #     return: "done" You can exit the flow using the return statement
 
 states:
+  intent:
+    component: "System.Intent"
+    properties:
+      variable: "iResult"
+      optionsPrompt: "Do you want to"       
+      autoNumberPostbackActions:
+      daIntercept: "always" 
+    transitions:
+      actions:
+        StartWork: "startWork"
+        AddToReport: "addToReport"
+        CompleteWork: "completeWork"
+        unresolvedIntent: "startUnresolved"
+        
+  startWork:
+    component: "System.Output"
+    properties:
+      text: "Hello, Starting your order process"
+      keepTurn: false
+    transitions:
+      return: "done"
+  
+  startUnresolved:
+    component: "System.Output"
+    properties:
+      text: "I am sorry I could not understand, lets connect you with someone to help."
+      keepTurn: false
+    transitions:
+      return: "done"      
+
+      
+  addToReport:
+    component: "System.Output"
+    properties:
+      text: "I am sorry to hear this. Let me take your cancellation request."
+    transitions: 
+      return : "done" 
+      
+  completeWork:
+    component: "System.Output"
+    properties:
+      text: "I am sorry to hear this. Let me take your complaint details."
+    transitions: 
+      return : "done"   
+      
+  maxError:
+    component: "System.Output"
+    properties:
+      text: "OK lets connect you with someone to help"
+    transitions:
+      return: "done"   
