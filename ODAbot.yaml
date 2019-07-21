@@ -11,8 +11,15 @@ context:
     stepNumber: "int"
     noteReported: "string"
     finalReport: "string"
-    repairs: "string"
+    repairs: "Repairs"
     report: "string"
+    startTime: "TIME"
+    endTime: "TIME"
+    previousStep: "string"
+    nextStep: "string"
+    currentStep: "string"
+    currentIndex: "int"
+    steps: "string"
     
 #The syntax for defining the variables is variablename: "variableType".
 # The "variableType" can be defined as a primitive type ("string", "boolean", "int", "float", "double"), "list", "map", "resourcebundle", or an entity name. A variable can also hold the results returned by the Intent Engine. For these variables, the "variableType" must be "nlpresult" (for example, iResult: "nlpresult").
@@ -41,6 +48,8 @@ states:
     transitions:
       actions:
         StartMaintenanceProcedures: "startMaintenanceProcedures"
+        ReadPreviousStep: "readPreviousStep"
+        ReadNextStep: "readNextStep"
         AddToReport: "addToReport"
         CompleteWork: "completeWork"
         unresolvedIntent: "startUnresolved"
@@ -48,31 +57,108 @@ states:
   startMaintenanceProcedures:
     component: "System.Text"
     properties:
-      prompt: "Sounds good, let's get started. What type of work are you trying to accomplish?"
+      prompt: "Sounds good, let's get to work. Repair order number 1007 created. I see that you are working on a Western Star 4700 SF truck. What type of job are you trying to accomplish?"
       variable: "repairs"
       nlpResultVariable: "iResult"
       maxPrompts: 3
     transitions:
       actions:
         cancel: "maxError"
-        next: "stepOne"
+        next: "setTime"
       # insert Component: Control/ConditionEquals. If it equals the step number, jump there
-
-  stepOne:
-    component: "System.Output"
+  initializeIndex:
+    component: "System.SetVariable"
     properties:
-      text: "${repairs.value} Removing the Front Engine Bracket. Step One. Shut off the engine, chock the wheels, and perform all safety steps."
-      keepTurn: false
+      variable: "currentIndex"
+      value: "0"
+  setTime:
+    component: "System.SetVariable"
+    properties:
+      variable: "startTime"
+      value: "${.now?time}"
+  
+  conditionEquals1:
+    component: "System.ConditionEquals"
+    properties:
+      source: "${repairs.value}"
+      value: "engine"
+    transitions:
+      actions:
+        equal: setEngineSteps
+        notequal: setPowertrainSteps
+  
+  setEngineSteps:
+    component: "System.SetVariable"
+    properties:
+      variable: "steps"
+      value:
+        - "${repairs.value}. Step One. Shut off the engine, apply the parking brake, chock the wheels, and perform any other applicable safety steps."
+        - "Step Two. Open the hood. Note the misfiring piston. Please refer to the visualization."
+        - "Step Three. Disconnect batteries. Refer to Original Equipment Manufacturer (OEM) procedures" 
+        - "Step Four. If needed, remove the bumper. Refer to OEM procedures."
+        - "Step Five. Remove upper radiator support bar. Refer to OEM procedures."
+        - "Step Six. Remove or loosen OEM coolant lines as needed. Refer to OEM procedures."
+        - "Step Seven. Remove the Exhaust Gas Recirculation (EGR) venturi. Refer to section Removal of the Exhaust Gas Recirculation Venturi"
+        - "Step Eight. Remove the reaming bolts holding the front engine lifting bracket to the cylinder block and pull the engine lifting bracket out and away from under the coolant crossover tube."
+  setPowertrainSteps:
+    component: "System.SetVariable"
+    properties:
+      variable: "steps"
+      value:
+        - "${repairs.value}. Step One. If necessary, remove the passenger side fairing."
+        - "Step Two. Note the one box harness routing and zip tie mounting locations."
+        - "Step Three. Disconnect the Selective Catalytic Reduction Inlet sensor Electronic Control Unit electrical connector."    
+#  stepOne:
+#    component: "System.Output"
+#    properties:
+#      text: "${repairs.value} Removing the Front Engine Bracket. Step One. Shut off the engine, chock the wheels, and perform all safety steps."
+#      keepTurn: false
   #    next: "stepTwo"
+#  stepOnePostOne:
+ #   component: "System.SetVariable"
+ #   properties:
+#      variable: "previousStep"
+ #     value: "${repairs.value} Removing the Front Engine Bracket. Step One. Shut off the engine, chock the wheels, and perform all safety steps." 
+  
+#  stepTwo:
+#    component: "System.Output"
+#    properties:
+#      text: "Step Two. Open the hood and disconnect the batteries."
+#      keepTurn: true
       
-  stepTwo:
+ # stepOnePostTwo:
+ #   component: "System.SetVariable"
+ #   properties:
+  #    variable: "nextStep"
+  #    value: "Step Two. Open the hood and disconnect the batteries."
+     # next: "stepTwo" 
+     
+  readFirstStep:
     component: "System.Output"
     properties:
-      text: "Step Two. Open the hood and disconnect the batteries."
+      text: "${steps.value[0]}" 
       keepTurn: false
-     # next: "stepTwo" 
+      translate:
  
- 
+  readPreviousStep:
+    component: "System.Output"
+    properties:
+      text: "${steps.value[1]}"
+      keepTurn: false
+  
+  readNextStep:
+    component: "System.Output"
+    properties:
+      text: "${steps.value[1]}"
+      keepTurn: false
+  
+  setIndex:
+    component: "System.SetVariable"
+    properties:
+      variable: "currentIndex"
+      value: "currentIndex+1"
+  
+      
   addToReport:
     component: "System.Text"
     properties:
@@ -91,11 +177,15 @@ states:
       text: "Added to report."
    
      
-     
   completeWork:
+    component: "System.SetVariable"
+    properties:
+      variable: "endTime"
+      value: "${.now?time}"   
+  completeWork2:
     component: "System.Output"
     properties:
-      text: "${report.value}"
+      text: "Service Technician's Report for Service number 1007. Issues reported. One, ${report.value}. This service started at ${startTime.value} and ended at ${endTime.value}. An invoice for work performed has been submitted as well as an issue report for all incidences has been recorded."
     transitions: 
       actions:
         cancel: "maxError"
@@ -104,7 +194,7 @@ states:
   signOff:
     component: "System.Output"
     properties:
-      text: "Nice work, tech"
+      text: "Please say new job to start the next procedure"
     transitions: 
       return : "done"     
         
